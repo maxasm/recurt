@@ -69,6 +69,7 @@ type PayLoad struct {
 type APIData struct {
 	Sentences []string `json:"h"`
 	FakePercentage float64 `json:"fakePercentage"`
+	IsHuman float64 `json:"isHuman"`
 }
 
 type APIResponse struct {

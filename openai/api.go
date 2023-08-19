@@ -79,10 +79,16 @@ func read_file(fname string) (string, error) {
 }
 
 func Rewrite(sentence string) (string, error) {
-	// the system prompt
-	system_prompt := "Rewrite the following sentences in an alternative way. Use an academic tone and be formal and academic with your wording and sentence structure. If any setence is long try and break it up into shorter sentences."
+	// the prompt to use when rewriting the sentence.
+	rewrite_prompt := `Rewrite the following sentences by following the guidelines below:
+- Use an academic and formal tone.
+- Split up long sentences into multiple shorter ones.
+- Be clever and creative in your wording. Use academic and formal synonyms. 
+- Use complex wording and sentence structure.
+- Only give the text output. Nothing else.
+`
 
 	// create user prompt
-	user_prompt := fmt.Sprintf("Sentence:\n%s", sentence)
-	return chat(system_prompt, user_prompt)
+	user_prompt := fmt.Sprintf("Sentence(s):\n%s", sentence)
+	return chat(rewrite_prompt, user_prompt)
 }

@@ -57,8 +57,10 @@ func group(src string, stc []string) (string, int) {
 
 		next_stc = stc[curr_stc_index+1]
 	
+		// get the index of the last character of the current sentence
 		curr_stc_end_index := strings.Index(src, curr_stc) + len(curr_stc)
-		next_stc_start_index := strings.Index(src, next_stc)
+		// get the index of the next sentence. start looking after the last senetence and not from the begining
+		next_stc_start_index := strings.Index(src[curr_stc_end_index:], next_stc) + curr_stc_end_index
 	
 		str_between := src[curr_stc_end_index:next_stc_start_index] 
 
@@ -82,7 +84,7 @@ func group(src string, stc []string) (string, int) {
 func recursive_rewrite(content string) {
 	
 	var iter int = 0
-	var fake_percentage float64
+	var is_human float64
 
 	t_start := time.Now()
 
@@ -96,7 +98,7 @@ func recursive_rewrite(content string) {
 	
 		// get the array of highlighted sentences
 		var sentences []string = (*resp).Data.Sentences
-		fake_percentage = (*resp).Data.FakePercentage
+		is_human = (*resp).Data.IsHuman
 	
 		prose, num := group(content, sentences)
 		
@@ -120,8 +122,13 @@ func recursive_rewrite(content string) {
 		iter += 1
 	}
 	
+	if is_human != 100 {
+		fmt.Printf("LOG: is_human = %f. Rewriting all over again ... \n", is_human)
+		recursive_rewrite(content)	
+	}
+		
 	elapsed := time.Since(t_start)
-	fmt.Printf("\n------ rewritten content (%f seconds) (fake: %f) ------\n\n%s\n", elapsed.Seconds(),fake_percentage, content)
+	fmt.Printf("\n------ rewritten content (%f seconds) (human: %f) ------\n\n%s\n", elapsed.Seconds(),is_human, content)
 }
 
 
@@ -140,13 +147,20 @@ func read_file(fname string) (string, error) {
 }
 
 func main() {
+
 	text, err_read_file := read_file("input.txt")
 	if err_read_file != nil {
 		fmt.Printf("Error: %s\n", err_read_file)	
 		os.Exit(1)
 	} 
 
-	recursive_rewrite(text)
+	prose, err_rewrite := openai.Rewrite(text)
+	if err_rewrite != nil {
+		fmt.Printf("Error: %s\n", err_rewrite)	
+		os.Exit(1)
+	}
+	
+	recursive_rewrite(prose)
 }
 
 
