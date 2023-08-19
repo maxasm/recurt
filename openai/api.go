@@ -80,12 +80,9 @@ func read_file(fname string) (string, error) {
 
 func Rewrite(sentence string) (string, error) {
 	// the prompt to use when rewriting the sentence.
-	rewrite_prompt := `Rewrite the following sentences by following the guidelines below:
-- Use an academic and formal tone.
-- Split up long sentences into multiple shorter ones.
-- Be clever and creative in your wording. Use academic and formal synonyms. 
-- Use complex wording and sentence structure.
-- Only give the text output. Nothing else.
+	rewrite_prompt := `Rewrite the following sentence(s) by:
+- Using an academic and formal tone.
+- Being clever in your wording. Use a lot of synonyms, complex wording and complex sentence structure.
 `
 
 	// create user prompt

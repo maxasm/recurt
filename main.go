@@ -128,7 +128,7 @@ func recursive_rewrite(content string) {
 	}
 		
 	elapsed := time.Since(t_start)
-	fmt.Printf("\n------ rewritten content (%f seconds) (human: %f) ------\n\n%s\n", elapsed.Seconds(),is_human, content)
+	fmt.Printf("\n\033[40m------\033[49m rewritten content (%f seconds) (human: %f) \033[40m------\033[49m\n\n%s\n", elapsed.Seconds(),is_human, content)
 }
 
 
@@ -153,14 +153,8 @@ func main() {
 		fmt.Printf("Error: %s\n", err_read_file)	
 		os.Exit(1)
 	} 
-
-	prose, err_rewrite := openai.Rewrite(text)
-	if err_rewrite != nil {
-		fmt.Printf("Error: %s\n", err_rewrite)	
-		os.Exit(1)
-	}
 	
-	recursive_rewrite(prose)
+	recursive_rewrite(text)
 }
 
 
