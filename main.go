@@ -177,7 +177,7 @@ func rewrite_paragraphs(paragraphs []parser.Paragraph, iter int) (string, error)
 			continue
 		} 
 		
-		fmt.Printf("rewritting paragraph %d of %d ...\n", a, len(paragraphs))	
+		fmt.Printf("rewriting paragraph %d of %d ...\n", a, len(paragraphs))	
 		rewrt, err_rewrt := rewrite_paragraph(pr, iter)	
 		if err_rewrt != nil {
 			return "", err_rewrt 
@@ -196,7 +196,7 @@ func main() {
 		fmt.Printf("Error: %s\n", err_read_file)	
 		os.Exit(1)
 	} 
-
+	
 	tokens := parser.Parse([]rune(text))	
 		
 	prs := parser.ParseParagraphs(tokens)
@@ -207,7 +207,6 @@ func main() {
 		fmt.Printf("Error: %s\n", err_resp)	
 		os.Exit(1)
 	}
-		
 	
 	fmt.Printf("\n ---- recursive rewrite ----\n")
 	recursive_rewrite(resp)
