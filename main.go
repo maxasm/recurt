@@ -9,6 +9,7 @@ import (
 	"time"
 	"github.com/maxasm/recurt/zerogpt"
 	"github.com/maxasm/recurt/openai"
+	"github.com/maxasm/recurt/parser"
 )
 
 func parseStr(str string) bool {
@@ -143,7 +144,49 @@ func read_file(fname string) (string, error) {
 		return "", err_read_data	
 	}
 	
+	// remove the eof char \0
+	data = data[:(len(data)-1)]
+
 	return string(data), nil
+}
+
+
+func rewrite_paragraph(paragraph parser.Paragraph, iter int) (string, error) {
+
+	var res string = paragraph.Text
+	
+	for a := 0; a < iter; a++ {
+		rewrt, err_rewrt := openai.Rewrite(res) 	
+		if err_rewrt != nil {
+			return "", err_rewrt	
+		}
+		res = rewrt
+	}
+	
+	return res, nil	
+}
+
+func rewrite_paragraphs(paragraphs []parser.Paragraph, iter int) (string, error) {
+	
+	var out bytes.Buffer = bytes.Buffer{}
+	
+	for a, pr := range paragraphs {
+		
+		if !pr.Editable {
+			out.WriteString(pr.Text)	
+			continue
+		} 
+		
+		fmt.Printf("rewritting paragraph %d of %d ...\n", a, len(paragraphs))	
+		rewrt, err_rewrt := rewrite_paragraph(pr, iter)	
+		if err_rewrt != nil {
+			return "", err_rewrt 
+		}
+	
+		out.WriteString(rewrt)
+	}
+	
+	return out.String(), nil	
 }
 
 func main() {
@@ -153,8 +196,20 @@ func main() {
 		fmt.Printf("Error: %s\n", err_read_file)	
 		os.Exit(1)
 	} 
-	
-	recursive_rewrite(text)
-}
 
+	tokens := parser.Parse([]rune(text))	
+		
+	prs := parser.ParseParagraphs(tokens)
+	
+	resp, err_resp := rewrite_paragraphs(prs, 1) 
+	
+	if err_resp != nil {
+		fmt.Printf("Error: %s\n", err_resp)	
+		os.Exit(1)
+	}
+		
+	
+	fmt.Printf("\n ---- recursive rewrite ----\n")
+	recursive_rewrite(resp)
+}
 
