@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"github.com/maxasm/recurt/token"
 )
 
 const URL = "https://api.openai.com/v1/chat/completions"
@@ -78,7 +79,7 @@ func read_file(fname string) (string, error) {
 	return string(data), nil
 }
 
-func Rewrite(sentence string) (string, error) {
+func Rewrite(sentence string, gpt_tokens *int64) (string, error) {
 	// the prompt to use when rewriting the sentence.
 	rewrite_prompt := `Rewrite the following sentence(s) in an alternative way, by:
 - Write in the style of a University graduate student. 
@@ -87,5 +88,21 @@ func Rewrite(sentence string) (string, error) {
 
 	// create user prompt
 	user_prompt := fmt.Sprintf("Sentence(s):\n%s", sentence)
-	return chat(rewrite_prompt, user_prompt)
+
+	resp,err_resp := chat(rewrite_prompt, user_prompt)
+	
+	if err_resp != nil {
+		return "", err_resp	
+	}
+	
+	full_text_tokens := user_prompt + rewrite_prompt + resp 
+	n_tokens, err_count_tokens :=  token.Count(full_text_tokens)
+	
+	if err_count_tokens != nil {
+		return "", err_count_tokens	
+	}
+	
+	(*gpt_tokens) += n_tokens 
+
+	return resp, nil
 }

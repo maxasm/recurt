@@ -3,7 +3,6 @@ package token
 import (
 	"os/exec"
 	"strconv"
-	"fmt"
 	"io"
 )
 
@@ -33,4 +32,9 @@ func Count(str string) (int64, error) {
 	}
 	
 	return output_as_int, nil
+}
+
+
+func Cost(n_tokens int64) float64 {
+	return (float64(n_tokens) * 0.002) / float64(1000)
 }

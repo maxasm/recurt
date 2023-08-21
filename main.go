@@ -83,7 +83,7 @@ func group(src string, stc []string) (string, int) {
 	return buffer.String(), curr_stc_index+1 
 }
 
-func recursive_rewrite(content string) {
+func recursive_rewrite(content string, gpt_tokens *int64) {
 	
 	var iter int = 0
 	var is_human float64
@@ -109,7 +109,7 @@ func recursive_rewrite(content string) {
 		}
 					
 		// rewrite the given sentence using openai
-		rewrt,err_rewrite_sentence := openai.Rewrite(prose)
+		rewrt,err_rewrite_sentence := openai.Rewrite(prose, gpt_tokens)
 		if err_rewrite_sentence != nil {
 			fmt.Printf("Error: %s\n", err_rewrite_sentence)	
 			os.Exit(1)
@@ -126,11 +126,11 @@ func recursive_rewrite(content string) {
 	
 	if is_human != 100 {
 		fmt.Printf("LOG: is_human = %f. Rewriting all over again ... \n", is_human)
-		recursive_rewrite(content)	
+		recursive_rewrite(content, gpt_tokens)	
 	}
 		
 	elapsed := time.Since(t_start)
-	fmt.Printf("\n\033[40m------\033[49m rewritten content (%f seconds) (human: %f) \033[40m------\033[49m\n\n%s\n", elapsed.Seconds(),is_human, content)
+	fmt.Printf("\n\033[40m------\033[49m rewritten content (%f seconds) (human: %.2f) \033[40m------\033[49m\n\n%s\n", elapsed.Seconds(),is_human, content)
 }
 
 
@@ -152,12 +152,12 @@ func read_file(fname string) (string, error) {
 }
 
 
-func rewrite_paragraph(paragraph parser.Paragraph, iter int) (string, error) {
+func rewrite_paragraph(paragraph parser.Paragraph, iter int, gpt_tokens *int64) (string, error) {
 
 	var res string = paragraph.Text
 	
 	for a := 0; a < iter; a++ {
-		rewrt, err_rewrt := openai.Rewrite(res) 	
+		rewrt, err_rewrt := openai.Rewrite(res, gpt_tokens) 	
 		if err_rewrt != nil {
 			return "", err_rewrt	
 		}
@@ -167,7 +167,7 @@ func rewrite_paragraph(paragraph parser.Paragraph, iter int) (string, error) {
 	return res, nil	
 }
 
-func rewrite_paragraphs(paragraphs []parser.Paragraph, iter int) (string, error) {
+func rewrite_paragraphs(paragraphs []parser.Paragraph, iter int, gpt_tokens *int64) (string, error) {
 	
 	var out bytes.Buffer = bytes.Buffer{}
 	
@@ -178,8 +178,8 @@ func rewrite_paragraphs(paragraphs []parser.Paragraph, iter int) (string, error)
 			continue
 		} 
 		
-		fmt.Printf("rewriting paragraph %d of %d ...\n", a, len(paragraphs))	
-		rewrt, err_rewrt := rewrite_paragraph(pr, iter)	
+		fmt.Printf("rewriting block %d of %d ...\n", a+1, len(paragraphs))	
+		rewrt, err_rewrt := rewrite_paragraph(pr, iter, gpt_tokens)	
 		if err_rewrt != nil {
 			return "", err_rewrt 
 		}
@@ -198,20 +198,14 @@ func main() {
 		os.Exit(1)
 	} 
 	
-	n_tokens, err_count_tokens := token.Count(text)
-	if err_count_tokens != nil {
-		fmt.Printf("Error: %s\n", err_count_tokens)	
-		os.Exit(1)
-	}
-	
-	fmt.Printf("tokens: %d\n", n_tokens)
-	/**
-	
 	tokens := parser.Parse([]rune(text))	
 		
+	// counter for the number of gpt tokens used
+	var gpt_tokens int64 = 0
+	
 	prs := parser.ParseParagraphs(tokens)
 	
-	resp, err_resp := rewrite_paragraphs(prs, 1) 
+	resp, err_resp := rewrite_paragraphs(prs, 1, &gpt_tokens) 
 	
 	if err_resp != nil {
 		fmt.Printf("Error: %s\n", err_resp)	
@@ -219,8 +213,9 @@ func main() {
 	}
 	
 	fmt.Printf("\n ---- recursive rewrite ----\n")
-	recursive_rewrite(resp)
+	recursive_rewrite(resp, &gpt_tokens)
 	
-	**/
+	token_cost := token.Cost(gpt_tokens)
+	fmt.Printf("\n ---- done rewriting. used %d tokens costing ($%.3f) ----\n", gpt_tokens, token_cost)
 }
 
