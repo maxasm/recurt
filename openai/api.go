@@ -13,6 +13,7 @@ import (
 const URL = "https://api.openai.com/v1/chat/completions"
 
 func chat(sys_prompt string, user_prompt string) (string, error) {
+
 	client := &http.Client{}
 	req, err_req := http.NewRequest("POST", URL, nil)
 	if err_req != nil {
@@ -20,7 +21,7 @@ func chat(sys_prompt string, user_prompt string) (string, error) {
 	}
 
 	// Add the required Headers
-	req.Header.Add("Authorization", "Bearer "+os.Getenv("OPENAI_API_KEY"))
+	req.Header.Add("Authorization", "Bearer "+os.Getenv("OPEN_AI_API_ACCESS_TOKEN"))
 	req.Header.Add("Content-Type", "application/json")
 
 	// sample request

@@ -5,12 +5,16 @@ import (
 	"io"
 	"bytes"
 	"encoding/json"
+	"os"
+	"fmt"
 )
 
-const access_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE0MCIsInJvbGUiOiIzIiwic2FsYXRhX2VuZ2luZSI6IjIuNyIsImNvc3RfcGVyX3Rob3VzYW5kIjoiMC4wMzQiLCJudW1iZXJfb2ZfY2hhcmFjdGVycyI6IjUwMDAwIiwibnVtYmVyX29mX2ZpbGVzIjoiNDAuMCIsImV4cCI6MTcyMTk5NDE3N30.AolsrSLz8xF4EkQfSGh5fCh7XHPnhWCksBmEDemB-vlRjbKJw5th7iefrRbwXlPBUYuZzByzQK-ka4NAFyzLM5YOrPy-k9xWC3FsvLea6G5uK_IADnqOBkni0Yywj7ofPqaQFf4qNl-8D1t0KlfLBV467XnXstyjpQkxLrtVxsA"
 const api_end_point = "https://api.zerogpt.com/api/detect/detectText"
 
 func upload(txt []byte) ([]byte, error) {
+	// get the access token
+	var access_token string = os.Getenv("ZERO_GPT_API_ACCESS_TOKEN") 
+
 	// set up the data
 	upload_data := bytes.NewBuffer(txt)
 	// create a new http request
@@ -42,16 +46,6 @@ func upload(txt []byte) ([]byte, error) {
 		return []byte{}, err_resp 	
 	}
 	
-	/**
-	fmt.Printf("\n ---- headers ----\n\n")
-	
-	for k, v := range resp.Header {
-		fmt.Printf("%s:%s\n", k,v)	
-	}
-	
-	fmt.Printf("\n")
-	**/
-	
 	defer resp.Body.Close()
 
 	data, err_read_data := io.ReadAll(resp.Body)
@@ -81,11 +75,13 @@ func Check(text string) (*APIResponse,error) {
 	test_data := PayLoad{InputText: text}	
 	test_as_json, err_marshal := json.Marshal(test_data)
  	if err_marshal != nil {
+		fmt.Printf("Error #1\n")
 		return nil, err_marshal
 	}	
 
 	resp, err_upload := upload(test_as_json)
 	if err_upload != nil {
+		fmt.Printf("Error #2\n")
 		return nil, err_upload
 	}
 	
@@ -93,6 +89,7 @@ func Check(text string) (*APIResponse,error) {
 	
 	err_unmarshal := json.Unmarshal(resp, &api_resp)
 	if err_unmarshal != nil {
+		fmt.Printf("Error #3: %s\n", string(resp))
 		return nil, err_unmarshal	
 	}
 

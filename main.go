@@ -11,6 +11,8 @@ import (
 	"github.com/maxasm/recurt/openai"
 	"github.com/maxasm/recurt/parser"
 	"github.com/maxasm/recurt/token"
+	
+	"github.com/joho/godotenv"
 )
 
 func parseStr(str string) bool {
@@ -94,8 +96,7 @@ func recursive_rewrite(content string, gpt_tokens *int64) {
 
 		resp, err_check := zerogpt.Check(content)
 		if err_check != nil {
-			fmt.Printf("Error: %s\n", err_check)
-			os.Exit(1)
+			panic(err_check)
 		}
 	
 		// get the array of highlighted sentences
@@ -111,8 +112,7 @@ func recursive_rewrite(content string, gpt_tokens *int64) {
 		// rewrite the given sentence using openai
 		rewrt,err_rewrite_sentence := openai.Rewrite(prose, gpt_tokens)
 		if err_rewrite_sentence != nil {
-			fmt.Printf("Error: %s\n", err_rewrite_sentence)	
-			os.Exit(1)
+			panic(err_rewrite_sentence)	
 		}
 		
 		// replace the initial sentence with the current sentence
@@ -202,22 +202,20 @@ func run() {
 	
 	text, err_read_file := read_file("input.txt")
 	if err_read_file != nil {
-		fmt.Printf("Error: %s\n", err_read_file)	
-		os.Exit(1)
+		panic(err_read_file)	
 	} 
 	
 	tokens := parser.Parse([]rune(text))	
 		
 	// counter for the number of gpt tokens used
 	var gpt_tokens int64 = 0
-	
+
 	prs := parser.ParseParagraphs(tokens)
 	
 	resp, err_resp := rewrite_paragraphs(prs, 1, &gpt_tokens) 
 	
 	if err_resp != nil {
-		fmt.Printf("Error: %s\n", err_resp)	
-		os.Exit(1)
+		panic(err_resp)	
 	}
 	
 	fmt.Printf("\n ---- recursive rewrite ----\n")
@@ -229,5 +227,9 @@ func run() {
 
 // the main function
 func main() {
+	// load environment varibles and access tokens
+	godotenv.Load()
+	
+	// run the main app
 	run()
 }
