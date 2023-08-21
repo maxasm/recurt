@@ -10,6 +10,7 @@ import (
 	"github.com/maxasm/recurt/zerogpt"
 	"github.com/maxasm/recurt/openai"
 	"github.com/maxasm/recurt/parser"
+	"github.com/maxasm/recurt/token"
 )
 
 func parseStr(str string) bool {
@@ -197,6 +198,15 @@ func main() {
 		os.Exit(1)
 	} 
 	
+	n_tokens, err_count_tokens := token.Count(text)
+	if err_count_tokens != nil {
+		fmt.Printf("Error: %s\n", err_count_tokens)	
+		os.Exit(1)
+	}
+	
+	fmt.Printf("tokens: %d\n", n_tokens)
+	/**
+	
 	tokens := parser.Parse([]rune(text))	
 		
 	prs := parser.ParseParagraphs(tokens)
@@ -210,5 +220,7 @@ func main() {
 	
 	fmt.Printf("\n ---- recursive rewrite ----\n")
 	recursive_rewrite(resp)
+	
+	**/
 }
 
