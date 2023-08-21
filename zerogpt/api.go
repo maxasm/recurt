@@ -96,14 +96,5 @@ func Check(text string) (*APIResponse,error) {
 		return nil, err_unmarshal	
 	}
 
-	/**
-	resp_json, err_resp_json := json.MarshalIndent(api_resp, "", " ")	
-	if err_resp_json != nil {
-		fmt.Printf("Error: %s\n", err_resp_json)	
-		os.Exit(1)
-	}
-	**/	
-	
 	return &api_resp, nil
-	
 }

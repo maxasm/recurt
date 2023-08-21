@@ -130,7 +130,7 @@ func recursive_rewrite(content string, gpt_tokens *int64) {
 	}
 		
 	elapsed := time.Since(t_start)
-	fmt.Printf("\n\033[40m------\033[49m rewritten content (%f seconds) (human: %.2f) \033[40m------\033[49m\n\n%s\n", elapsed.Seconds(),is_human, content)
+	fmt.Printf("\n\033[40m------\033[49m rewritten content (%.2f seconds) (human: %.2f) \033[40m------\033[49m\n\n%s\n", elapsed.Seconds(),is_human, content)
 }
 
 
@@ -190,8 +190,16 @@ func rewrite_paragraphs(paragraphs []parser.Paragraph, iter int, gpt_tokens *int
 	return out.String(), nil	
 }
 
-func main() {
+func run() {
 
+	// recover from any error that may occur due to text parsing and more ...
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("There was an error, retring again ...\n%s\n", err)	
+			run()
+		}	
+	}()
+	
 	text, err_read_file := read_file("input.txt")
 	if err_read_file != nil {
 		fmt.Printf("Error: %s\n", err_read_file)	
@@ -219,3 +227,7 @@ func main() {
 	fmt.Printf("\n ---- done rewriting. used %d tokens costing ($%.3f) ----\n", gpt_tokens, token_cost)
 }
 
+// the main function
+func main() {
+	run()
+}
