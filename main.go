@@ -12,9 +12,12 @@ import (
     "strings"
 
     "github.com/labstack/echo/v4"
+
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/bson/primitive"
     "go.mongodb.org/mongo-driver/mongo/options"
+
+    "golang.org/x/net/websocket" 
 )
 
 const SAMPLE_TEXT = ``
@@ -116,13 +119,39 @@ func handleRewriteRequest(c echo.Context) error {
     return sendResponse(c, APIResponse{Code: http.StatusOK, Message: "Text uploaded successfully", Text: req_id})
 }
 
+func handleWebSocketRequest(c echo.Context) error {
+    websocket.Handler(func(ws *websocket.Conn){
+        defer ws.Close() 
+    
+        for {
+            // read from websockets
+            msg := ""
+    
+            err := websocket.Message.Receive(ws, &msg) 
+            if err != nil {
+                fmt.Printf("Error reading from websocket\n")
+                break 
+            }
+    
+            fmt.Printf("received message: %s\n", msg)
+        }
+    }).ServeHTTP(c.Response(), c.Request())
+    
+    return nil
+}
+
 func start_server() {
     e := echo.New() 
-    
+
+    e.Static("/", "./client")  
+
     // handle POST request submitting the text to be rewritten
     e.POST("/rewrite", handleRewriteRequest) 
     
-    if err_start_server := e.Start(":8081"); err_start_server != nil {
+    // get request to handle Websocket connections
+    e.GET("/ws", handleWebSocketRequest)    
+    
+    if err_start_server := e.Start(":8080"); err_start_server != nil {
         fmt.Printf("Error starting server: %s\n", err_start_server)
         os.Exit(1)
     }
