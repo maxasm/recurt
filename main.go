@@ -37,8 +37,8 @@ func parseStr(str string) bool {
 	return true
 }
 
+// group sentences that are higlighed as AI generated
 func group(src string, stc []string) (string, int) {
-
 	var curr_stc_index int = 0 
 
 	var curr_stc string
@@ -205,10 +205,12 @@ func run() {
 		panic(err_read_file)	
 	} 
 	
-	tokens := parser.Parse([]rune(text))	
 		
 	// counter for the number of gpt tokens used
 	var gpt_tokens int64 = 0
+
+    /**
+	tokens := parser.Parse([]rune(text))	
 
 	prs := parser.ParseParagraphs(tokens)
 	
@@ -217,9 +219,10 @@ func run() {
 	if err_resp != nil {
 		panic(err_resp)	
 	}
+    **/
 	
 	fmt.Printf("\n ---- recursive rewrite ----\n")
-	recursive_rewrite(resp, &gpt_tokens)
+	recursive_rewrite(text, &gpt_tokens)
 	
 	token_cost := token.Cost(gpt_tokens)
 	fmt.Printf("\n ---- done rewriting. used %d tokens costing ($%.3f) ----\n", gpt_tokens, token_cost)
@@ -228,7 +231,7 @@ func run() {
 // the main function
 func main() {
 	// load environment varibles and access tokens
-	godotenv.Load()
+	godotenv.Load("access_tokens")
 	
 	// run the main app
 	run()

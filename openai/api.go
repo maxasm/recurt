@@ -82,9 +82,9 @@ func read_file(fname string) (string, error) {
 
 func Rewrite(sentence string, gpt_tokens *int64) (string, error) {
 	// the prompt to use when rewriting the sentence.
-	rewrite_prompt := `Rewrite the following sentence(s) in an alternative way, by:
-- Write in the style of a University graduate student. 
-- Use academic synonyms, and high-level scholarly phrases and wording.
+	rewrite_prompt := `The following sentence is part of a website blog section, rewrite it by:
+- Using the style of a CNBC blog writer. (Do not mention CNBC) 
+- Use the prowess of an experienced writer.
 `
 
 	// create user prompt
