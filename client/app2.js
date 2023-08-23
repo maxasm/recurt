@@ -41,7 +41,7 @@ btn_rewrite.addEventListener("click", async ()=>{
         json_data = JSON.parse(event.data)
         console.log(json_data)
         
-        inp.textValue = json_data.text 
+        res_span.textContent = json_data.text 
     });
 
     // Connection closed

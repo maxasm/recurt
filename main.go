@@ -2,7 +2,6 @@ package main
 
 import (
     "github.com/joho/godotenv"
-    "encoding/json"
     "fmt"
     "os"
     "context"
@@ -10,6 +9,7 @@ import (
     "io"
     "errors"
     "strings"
+    "encoding/json"
 
     "github.com/labstack/echo/v4"
 
@@ -20,8 +20,6 @@ import (
     
     "golang.org/x/net/websocket" 
 )
-
-const SAMPLE_TEXT = ``
 
 // database connection
 var database_client *mongo.Client
@@ -59,7 +57,6 @@ type TextEntry struct {
     Tokens int `bson:"tokens" json:"tokens"`
     Cost float64 `bson:"cost" json:"cost"`
     IP string `bson:"ip" json:"ip"`
-    Done bool `bson:"done" json:"done"`
 }
 
 func createRewriteEntry(ip string, text string) (string, error) {
@@ -121,6 +118,19 @@ func handleRewriteRequest(c echo.Context) error {
     return sendResponse(c, APIResponse{Code: http.StatusOK, Message: "Text uploaded successfully", Text: req_id})
 }
 
+// update the database
+func update_db(rp RewriteResponse, id primitive.ObjectID) error {
+    
+    collection := database_client.Database("text").Collection("data")
+    _, err := collection.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.M{"$set": bson.M{
+        "tokens": rp.Tokens,
+        "cost": rp.Cost, 
+        "text": "",
+    }})
+     
+    return err 
+}
+
 // handle incomming web socket connection 
 func handleWebSocketRequest(c echo.Context) error {
     fmt.Printf("Received websocket connection request ...\n")
@@ -146,17 +156,30 @@ func handleWebSocketRequest(c echo.Context) error {
         return c.NoContent(http.StatusBadRequest) 
     }
 
-    fmt.Printf("found the text from id. Websocket connection open.\n")
-    
     websocket.Handler(func(ws *websocket.Conn){
         defer ws.Close() 
             
+        // run the 'run' function which rewrites the text
         text := find_result.Text
         rp := run(text)
     
-        // TODO: update find_result using values from rp
+        err_update_db := update_db(rp, object_id) 
+        if err_update_db != nil {
+            fmt.Printf("error updating database\n")
+        } else {
+            fmt.Printf("updated database successfully\n") 
+        }
+ 
         
-        websocket.Message.Send(ws, rp.Text) 
+        // convert rp to json
+        json_b, err_json := json.Marshal(rp)
+        if err_json != nil {
+            fmt.Printf("Error converting to JSON string\n") 
+        } else {     
+            // send the json encoded response
+            websocket.Message.Send(ws, string(json_b)) 
+        }
+
     }).ServeHTTP(c.Response(), c.Request())
     
     return nil
@@ -189,15 +212,4 @@ func main() {
 
     // start the server
     start_server()
-
-	// run the main app
-	rp := run(SAMPLE_TEXT)
-    
-    rp_json, err_rp_json := json.MarshalIndent(rp, "", "\t") 
-    if err_rp_json != nil { 
-        fmt.Printf("Error: %s\n", err_rp_json)    
-        os.Exit(1)
-    }
-    
-    fmt.Printf("\n ---- resp as JSON ----\n\n%s\n", rp_json)
 }

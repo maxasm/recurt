@@ -86,7 +86,6 @@ func Rewrite(sentence string, gpt_tokens *int64) (string, error) {
 - Write in the style of an advanced University graduate student. 
 - Use academic synonyms, and high-level scholarly phrases and wording.
 `
-
 	// create user prompt
 	user_prompt := fmt.Sprintf("Sentence(s):\n%s", sentence)
 

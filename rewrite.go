@@ -202,16 +202,16 @@ func run(content string) RewriteResponse {
 		}	
 	}()
 	
+    // counter for the number of gpt tokens used
+	var gpt_tokens int64 = 0
+
     // parse sentence and char tokens
 	tokens := parser.Parse([]rune(content))	
 		
-	// counter for the number of gpt tokens used
-	var gpt_tokens int64 = 0
-
     // takes the tokens and groups paragraphs together
 	prs := parser.ParseParagraphs(tokens)
 	
-	resp, err_resp := rewrite_paragraphs(prs, 2, &gpt_tokens) 
+	resp, err_resp := rewrite_paragraphs(prs, 1, &gpt_tokens) 
 	
 	if err_resp != nil {
 		panic(err_resp)	
