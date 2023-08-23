@@ -186,8 +186,8 @@ func rewrite_paragraphs(paragraphs []parser.Paragraph, iter int, gpt_tokens *int
 
 type RewriteResponse struct {
     Text string `json:"text"`
-    Tokens int64 `json:"tokens"`
-    Cost float64 `json:"cost"`
+    Tokens int64 `json:"-"`
+    Cost float64 `json:"-"`
     Human float64 `json:"human"`
 }
 

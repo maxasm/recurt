@@ -16,7 +16,8 @@ import (
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/bson/primitive"
     "go.mongodb.org/mongo-driver/mongo/options"
-
+    "go.mongodb.org/mongo-driver/bson"
+    
     "golang.org/x/net/websocket" 
 )
 
@@ -58,6 +59,7 @@ type TextEntry struct {
     Tokens int `bson:"tokens" json:"tokens"`
     Cost float64 `bson:"cost" json:"cost"`
     IP string `bson:"ip" json:"ip"`
+    Done bool `bson:"done" json:"done"`
 }
 
 func createRewriteEntry(ip string, text string) (string, error) {
@@ -119,22 +121,42 @@ func handleRewriteRequest(c echo.Context) error {
     return sendResponse(c, APIResponse{Code: http.StatusOK, Message: "Text uploaded successfully", Text: req_id})
 }
 
+// handle incomming web socket connection 
 func handleWebSocketRequest(c echo.Context) error {
+    fmt.Printf("Received websocket connection request ...\n")
+    // get the id of the request
+    req_id := c.Param("id")
+
+    // check if the ID exists in the database
+    object_id, err_get_object_id := primitive.ObjectIDFromHex(req_id)    
+    if err_get_object_id != nil {
+        fmt.Printf("Error: %s\n", err_get_object_id)
+        return c.NoContent(http.StatusBadRequest)
+    }
+    
+    // find response
+    var find_result TextEntry = TextEntry{}
+    
+    err_find := database_client.Database("text").Collection("data").FindOne(context.TODO(), bson.D{{"_id", object_id}}).Decode(&find_result)
+    if err_find != nil {
+        if err_find == mongo.ErrNoDocuments {
+            fmt.Printf("Error: %s\n", err_find)
+            return c.NoContent(http.StatusBadRequest)
+        }  
+        return c.NoContent(http.StatusBadRequest) 
+    }
+
+    fmt.Printf("found the text from id. Websocket connection open.\n")
+    
     websocket.Handler(func(ws *websocket.Conn){
         defer ws.Close() 
+            
+        text := find_result.Text
+        rp := run(text)
     
-        for {
-            // read from websockets
-            msg := ""
-    
-            err := websocket.Message.Receive(ws, &msg) 
-            if err != nil {
-                fmt.Printf("Error reading from websocket\n")
-                break 
-            }
-    
-            fmt.Printf("received message: %s\n", msg)
-        }
+        // TODO: update find_result using values from rp
+        
+        websocket.Message.Send(ws, rp.Text) 
     }).ServeHTTP(c.Response(), c.Request())
     
     return nil
@@ -149,7 +171,7 @@ func start_server() {
     e.POST("/rewrite", handleRewriteRequest) 
     
     // get request to handle Websocket connections
-    e.GET("/ws", handleWebSocketRequest)    
+    e.GET("/ws/:id", handleWebSocketRequest)    
     
     if err_start_server := e.Start(":8080"); err_start_server != nil {
         fmt.Printf("Error starting server: %s\n", err_start_server)
