@@ -187,15 +187,16 @@ func handleWebSocketRequest(c echo.Context) error {
 
 func start_server() {
     e := echo.New() 
-
-    e.Static("/", "./client")  
-
+    
     // handle POST request submitting the text to be rewritten
     e.POST("/rewrite", handleRewriteRequest) 
     
     // get request to handle Websocket connections
     e.GET("/ws/:id", handleWebSocketRequest)    
-    
+
+    // simple file server to serve the website
+    e.GET("/*", serve_static_site)  
+
     if err_start_server := e.Start(":8080"); err_start_server != nil {
         fmt.Printf("Error starting server: %s\n", err_start_server)
         os.Exit(1)
