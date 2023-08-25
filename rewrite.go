@@ -7,10 +7,13 @@ import (
 	"os"
 	"bytes"
 	"time"
+
 	"github.com/maxasm/recurt/zerogpt"
 	"github.com/maxasm/recurt/openai"
 	"github.com/maxasm/recurt/parser"
 	"github.com/maxasm/recurt/token"
+    
+    "golang.org/x/net/websocket" 
 )
 
 func parseStr(str string) bool {
@@ -83,7 +86,7 @@ func group(src string, stc []string) (string, int) {
 	return buffer.String(), curr_stc_index+1 
 }
 
-func recursive_rewrite(content string, gpt_tokens *int64) (string,float64) {
+func recursive_rewrite(content string, gpt_tokens *int64, ws *websocket.Conn) (string,float64) {
 	
 	var iter int = 0
 	var is_human float64
@@ -116,8 +119,10 @@ func recursive_rewrite(content string, gpt_tokens *int64) (string,float64) {
 		// replace the initial sentence with the current sentence
 		content = strings.Replace(content, prose, rewrt, 1)
 
-		fmt.Printf("#%d hs -> %d. Rewrite %d sentences\n", iter, len(sentences), num)
-	
+		txt := fmt.Sprintf("#%d hs -> %d. Rewrite %d sentences\n", iter, len(sentences), num)
+        fmt.Printf("%s\n", txt)
+        websocket.JSON.Send(ws, WebSocketMessage{Done: false, Text: txt})    
+    	
 		iter += 1
 	}
 	
@@ -145,8 +150,15 @@ func read_file(fname string) (string, error) {
 	return string(data), nil
 }
 
+// general structure of a JSON message
+type WebSocketMessage struct {
+    Done bool `json:"done"` // is this the final rewritten text
+    Text string `json:"text"` // the payload text
+    Human float64 `json:"human"` // percentage of human text
+}
 
-func rewrite_paragraph(paragraph parser.Paragraph, iter int, gpt_tokens *int64) (string, error) {
+
+func rewrite_paragraph(paragraph parser.Paragraph, iter int, gpt_tokens *int64, ws *websocket.Conn) (string, error) {
 	var res string = paragraph.Text
 	
 	for a := 0; a < iter; a++ {
@@ -160,7 +172,7 @@ func rewrite_paragraph(paragraph parser.Paragraph, iter int, gpt_tokens *int64) 
 	return res, nil	
 }
 
-func rewrite_paragraphs(paragraphs []parser.Paragraph, iter int, gpt_tokens *int64) (string, error) {
+func rewrite_paragraphs(paragraphs []parser.Paragraph, iter int, gpt_tokens *int64, ws *websocket.Conn) (string, error) {
 	
 	var out bytes.Buffer = bytes.Buffer{}
 	
@@ -171,8 +183,11 @@ func rewrite_paragraphs(paragraphs []parser.Paragraph, iter int, gpt_tokens *int
 			continue
 		} 
 		
-		fmt.Printf("rewriting block %d of %d ...\n", a+1, len(paragraphs))	
-		rewrt, err_rewrt := rewrite_paragraph(pr, iter, gpt_tokens)	
+		txt := fmt.Sprintf("rewriting block %d of %d ...\n", a+1, len(paragraphs))	
+        fmt.Printf("%s\n", txt)
+        websocket.JSON.Send(ws, WebSocketMessage{Done: false, Text:txt})
+        
+		rewrt, err_rewrt := rewrite_paragraph(pr, iter, gpt_tokens, ws)	
 		if err_rewrt != nil {
 			return "", err_rewrt 
 		}
@@ -192,13 +207,13 @@ type RewriteResponse struct {
 }
 
 // run takes a string and returns a response containing the ID of the text being processed.
-func run(content string) RewriteResponse {
+func run(content string, ws *websocket.Conn) RewriteResponse {
 
 	// recover from any error that may occur due to text parsing and more ...
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Printf("There was an error, retring again ...\n%s\n", err)	
-			run(content)
+			run(content, ws)
 		}	
 	}()
 	
@@ -211,14 +226,14 @@ func run(content string) RewriteResponse {
     // takes the tokens and groups paragraphs together
 	prs := parser.ParseParagraphs(tokens)
 	
-	resp, err_resp := rewrite_paragraphs(prs, 1, &gpt_tokens) 
+	resp, err_resp := rewrite_paragraphs(prs, 1, &gpt_tokens, ws) 
 	
 	if err_resp != nil {
 		panic(err_resp)	
 	}
 	
 	fmt.Printf("\n ---- recursive rewrite ----\n")
-	resp_content, human_p := recursive_rewrite(resp, &gpt_tokens)
+	resp_content, human_p := recursive_rewrite(resp, &gpt_tokens, ws)
     
 	token_cost := token.Cost(gpt_tokens)
 	fmt.Printf("\n ---- done rewriting. used %d tokens costing ($%.3f) ----\n", gpt_tokens, token_cost)

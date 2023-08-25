@@ -9,7 +9,6 @@ import (
     "io"
     "errors"
     "strings"
-    "encoding/json"
 
     "github.com/labstack/echo/v4"
 
@@ -159,9 +158,8 @@ func handleWebSocketRequest(c echo.Context) error {
     websocket.Handler(func(ws *websocket.Conn){
         defer ws.Close() 
             
-        // run the 'run' function which rewrites the text
         text := find_result.Text
-        rp := run(text)
+        rp := run(text, ws)
     
         err_update_db := update_db(rp, object_id) 
         if err_update_db != nil {
@@ -170,16 +168,9 @@ func handleWebSocketRequest(c echo.Context) error {
             fmt.Printf("updated database successfully\n") 
         }
  
+        // send the response in JSON
+        websocket.JSON.Send(ws, WebSocketMessage{Done: true, Text: rp.Text, Human: rp.Human})
         
-        // convert rp to json
-        json_b, err_json := json.Marshal(rp)
-        if err_json != nil {
-            fmt.Printf("Error converting to JSON string\n") 
-        } else {     
-            // send the json encoded response
-            websocket.Message.Send(ws, string(json_b)) 
-        }
-
     }).ServeHTTP(c.Response(), c.Request())
     
     return nil

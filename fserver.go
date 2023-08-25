@@ -3,7 +3,6 @@ package main
 import (
     "github.com/labstack/echo/v4"
     "os"
-    "fmt"
 )
 
 // file server for react single-page application
