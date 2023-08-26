@@ -219,7 +219,7 @@ func run(content string, ws *websocket.Conn) RewriteResponse {
 	
     // counter for the number of gpt tokens used
 	var gpt_tokens int64 = 0
-
+    
     // parse sentence and char tokens
 	tokens := parser.Parse([]rune(content))	
 		
@@ -231,7 +231,7 @@ func run(content string, ws *websocket.Conn) RewriteResponse {
 	if err_resp != nil {
 		panic(err_resp)	
 	}
-	
+
 	fmt.Printf("\n ---- recursive rewrite ----\n")
 	resp_content, human_p := recursive_rewrite(resp, &gpt_tokens, ws)
     

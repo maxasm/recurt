@@ -194,6 +194,9 @@ func start_server() {
     }
 }
 
+// TODO: Limit the number of input words to 300
+// TODO: Enhance the prompt to be more effective
+
 // the main function
 func main() {
 	// load environment varibles and access tokens
