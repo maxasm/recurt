@@ -222,7 +222,7 @@ func run(content string, ws *websocket.Conn) RewriteResponse {
     
     // parse sentence and char tokens
 	tokens := parser.Parse([]rune(content))	
-		
+
     // takes the tokens and groups paragraphs together
 	prs := parser.ParseParagraphs(tokens)
 	
