@@ -26,6 +26,9 @@ import {createTheme, ThemeProvider} from "@mui/material/styles"
 /** state **/
 import {useState} from "react"
 
+/** count words **/
+import {wordsCount} from "words-count"
+
 const App = ()=> {
     // 'Hire Me' modal state
     const [hm_modal_open, update_hm_modal_open] = useState(false)
@@ -33,11 +36,112 @@ const App = ()=> {
     // 'Text Rewrite' modal state 
     const [tx_modal_open, update_tx_modal_open] = useState(false)
     
+    // the header text of the text modal
+    const [tx_modal_header_text, update_tx_modal_header_text] = useState("")
+    
+    // text value in the 'text-area'
+    const [text, updateText] = useState("")
+     
+    // state for the number of words
+    const [text_count, update_text_count] = useState(0)
+    
+    // state for 'done' rewriting
+    const [done, updateDone] = useState(false)
+        
+    // state for modal text
+    const [modal_text, update_modal_text] = useState("")
+
+    function handleOnTextChange(e) {
+        updateText(e.target.value) 
+        update_text_count(()=> {
+            return wordsCount(e.target.value)
+        })
+    }
+    
+    // text value error
+    const [text_error, update_text_error] = useState(false)
+    const [text_error_msg, update_text_error_msg] = useState(false)
+
+    function validateText() {
+        const MAX_WORDS = 300;
+        const MIN_WORDS = 200;
+    
+        // check if the text is empty
+        if (wordsCount(text) === 0) {
+            update_text_error(true)     
+            update_text_error_msg("Text can't be empty")
+            return false
+        }
+    
+        if ((wordsCount(text) < MIN_WORDS) || (wordsCount(text) > MAX_WORDS)) {
+            update_text_error(true) 
+            update_text_error_msg("Words count not in the given range.")
+            return false
+        }
+    
+        update_text_error(false)
+        update_text_error_msg("")
+        
+        update_modal_text(text)
+        return true
+    }
+ 
     // function called to rewrite the text
     function handleRewriteText() {
-        // open the text modal
-        // TODO: start the rewriting procedure        
-        update_tx_modal_open(true)
+        // start by validating the text 
+        let valid = validateText() 
+        if (valid) {
+            let ok = sendRewriteRequest()
+            update_tx_modal_open(ok)
+        }
+    }
+
+    async function sendRewriteRequest() {
+        const resp = await fetch("/rewrite", {
+            method: "POST",
+            body: text, 
+        }) 
+    
+       let resp_json = await resp.json() 
+    
+        if (resp_json.code !== 200) {
+            console.log("There was an issue contacting the server")
+            return false 
+        }
+    
+        // get the unique id 
+        let rw_id = resp_json.text
+        
+        // TODO: use the location object so that you do not have to write the full IP
+        // create a new websocket connection
+        let ws_connection = new WebSocket(`ws://127.0.0.1:8080/ws/${rw_id}`)
+        
+        ws_connection.onopen = function() {
+            console.log("websocket connected")     
+        }
+    
+        ws_connection.onmessage = async function({data}) {
+            console.log(`ws message: ${data}`)     
+            let data_json = JSON.parse(data)
+            // update the done state
+            updateDone(data_json.done)
+    
+            if (data_json.done) {
+                update_modal_text(data_json.text) 
+                return
+            }
+
+            // update the modal header text
+            update_tx_modal_header_text(data_json.text)
+        }
+    
+        ws_connection.onclose = function() {
+            console.log("websocket connection closed")
+        } 
+    
+        ws_connection.onerror = function() {
+            console.log(`websocket connection error: ${err}`)
+        }
     }
 
     // open the 'hire me' dialog
@@ -70,11 +174,18 @@ const App = ()=> {
         },
     });
 
+    // TODO: in the instruction, add check results on ZeroGPT option
     return (
         <>
             <ThemeProvider theme={theme}>
                 <CssBaseline/>
-                <TextDialog open={tx_modal_open} update_modal_open={update_tx_modal_open}/>
+                <TextDialog
+                    open={tx_modal_open}
+                    update_modal_open={update_tx_modal_open}
+                    base_text={modal_text}
+                    header_text={tx_modal_header_text}
+                    done={done}/>
+
                 <HireMeDialog open={hm_modal_open} update_modal_open={update_hm_modal_open}/>
 
                 <div className="nav">
@@ -101,11 +212,16 @@ const App = ()=> {
                             fontFamily="Barlow"
                             multiline
                             rows={7}
+                            value={text}
+                            onChange={handleOnTextChange}
+                            error={text_error}
+                            helperText={text_error_msg} 
                             placeholder="Input your text. Minimum: 200 words. Maximum: 300 words."
                             label="Paste in your GPT paragraph"
                             sx={{width: "90%", margin: "15px auto"}}
                         /> 
                         <div className="btn-holder">
+                            <Typography sx={{marginRight: "10px"}}> {`${text_count} : 200-300`} </Typography>
                             <Button
                                 onClick={handleRewriteText}
                                 startIcon={<ModelTrainingIcon/>}

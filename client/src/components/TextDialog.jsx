@@ -12,12 +12,14 @@ import CircularProgress from '@mui/material/CircularProgress'
 /** state management **/
 import {useState} from "react"
 
-const TextDialog = ({open, update_modal_open})=> {
+// TODO: try and use a <pre/> tag to maintain spaces.
+const TextDialog = ({open, update_modal_open, base_text, done, header_text})=> {
 
     function handleModalClose(){
         update_modal_open(false) 
     }
     
+    // TODO: remove <Typography/> inside <DialogTitle/>
     return (
         <Dialog
             open={open}
@@ -25,19 +27,22 @@ const TextDialog = ({open, update_modal_open})=> {
             maxWidth={"xl"}
             scroll={"paper"}>
             <DialogTitle sx={{display: "flex", alignItems: "center"}}> 
-                <Typography sx={{marginRight: "12px", fontSize: "1.2rem", fontFamily: "Barlow"}}> Rewriting block 1 of 10 </Typography>
-                <CircularProgress sx={{marginBottom: "10px"}} size="25px"/>
+                <Typography
+                    sx={{marginRight: "12px", fontSize: "1.2rem", fontFamily: "Barlow"}}> {!done ? header_text : "Human Rewritten Text"} </Typography>
+                <CircularProgress
+                    sx={{display: !done ? "inline" : "none"}}
+                    size="25px"/>
             </DialogTitle>
             <DialogContent dividers>
                 <DialogContentText>
                     <Typography>
-                        Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
+                        {base_text}
                     </Typography>
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button variant="outlined" sx={{fontFamily: "Roboto"}}> Copy Text </Button>
-                <Button variant="contained" sx={{fontFamily: "Roboto"}}> Rewrite Again </Button>
+                <Button disabled={!done} variant="outlined" sx={{fontFamily: "Roboto"}}> Copy Text </Button>
+                <Button disabled={!done} variant="contained" sx={{fontFamily: "Roboto"}}> Rewrite Again </Button>
             </DialogActions>
         </Dialog>
     )

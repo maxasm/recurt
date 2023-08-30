@@ -23,6 +23,9 @@ dependencies:
   react-dom:
     specifier: ^18.2.0
     version: 18.2.0(react@18.2.0)
+  words-count:
+    specifier: ^2.0.2
+    version: 2.0.2
 
 devDependencies:
   '@types/react':
@@ -2504,6 +2507,10 @@ packages:
     dependencies:
       isexe: 2.0.0
     dev: true
+
+  /words-count@2.0.2:
+    resolution: {integrity: sha512-u0LFfJPhnR0xXu/5WoqWIkgdGJst5GahS4lYy4G5TIX4JAQgeNKD33HpmMoxveVBWNS6W6YZV2OQjVIVLL4K7Q==}
+    dev: false
 
   /wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
