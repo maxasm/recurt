@@ -6,7 +6,6 @@ import (
 	"strings"
 	"os"
 	"bytes"
-	"time"
 
 	"github.com/maxasm/recurt/zerogpt"
 	"github.com/maxasm/recurt/openai"
@@ -91,7 +90,7 @@ func recursive_rewrite(content string, gpt_tokens *int64, ws *websocket.Conn) (s
 	var iter int = 0
 	var is_human float64
 
-	t_start := time.Now()
+	// t_start := time.Now()
 
 	for { 
 
@@ -119,15 +118,15 @@ func recursive_rewrite(content string, gpt_tokens *int64, ws *websocket.Conn) (s
 		// replace the initial sentence with the current sentence
 		content = strings.Replace(content, prose, rewrt, 1)
 
-		txt := fmt.Sprintf("#%d hs -> %d. Rewrite %d sentences\n", iter, len(sentences), num)
-        fmt.Printf("%s\n", txt)
+		txt := fmt.Sprintf("Rewriting %d AI sentences\n", num)
+        // fmt.Printf("%s\n", txt)
         websocket.JSON.Send(ws, WebSocketMessage{Done: false, Text: txt})    
     	
 		iter += 1
 	}
 	
-	elapsed := time.Since(t_start)
-	fmt.Printf("\n\033[40m------\033[49m rewritten content (%.2f seconds) (human: %.2f) \033[40m------\033[49m\n\n%s\n", elapsed.Seconds(),is_human, content)
+	// elapsed := time.Since(t_start)
+	// fmt.Printf("\n\033[40m------\033[49m rewritten content (%.2f seconds) (human: %.2f) \033[40m------\033[49m\n\n%s\n", elapsed.Seconds(),is_human, content)
     
     return content, is_human
 }
@@ -183,8 +182,8 @@ func rewrite_paragraphs(paragraphs []parser.Paragraph, iter int, gpt_tokens *int
 			continue
 		} 
 		
-		txt := fmt.Sprintf("rewriting block %d of %d ...\n", a+1, len(paragraphs))	
-        fmt.Printf("%s\n", txt)
+		txt := fmt.Sprintf("Rewriting block %d of %d\n", a+1, len(paragraphs))	
+        // fmt.Printf("%s\n", txt)
         websocket.JSON.Send(ws, WebSocketMessage{Done: false, Text:txt})
         
 		rewrt, err_rewrt := rewrite_paragraph(pr, iter, gpt_tokens, ws)	
@@ -232,7 +231,7 @@ func run(content string, ws *websocket.Conn) RewriteResponse {
 		panic(err_resp)	
 	}
 
-	fmt.Printf("\n ---- recursive rewrite ----\n")
+    // fmt.Printf("\n ---- recursive rewrite ----\n")
 	resp_content, human_p := recursive_rewrite(resp, &gpt_tokens, ws)
     
 	token_cost := token.Cost(gpt_tokens)

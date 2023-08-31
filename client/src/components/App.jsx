@@ -8,6 +8,7 @@ import TextField from "@mui/material/TextField"
 import CircularProgress from "@mui/material/CircularProgress"
 import Button from "@mui/material/Button"
 import Box from "@mui/material/Box"
+import Link from "@mui/material/Link"
 
 /** components **/
 import TextDialog from "./TextDialog"
@@ -64,7 +65,7 @@ const App = ()=> {
 
     function validateText() {
         const MAX_WORDS = 300;
-        const MIN_WORDS = 200;
+        const MIN_WORDS = 50;
     
         // check if the text is empty
         if (wordsCount(text) === 0) {
@@ -112,7 +113,8 @@ const App = ()=> {
         // get the unique id 
         let rw_id = resp_json.text
         
-        // TODO: use the location object so that you do not have to write the full IP
+        // TODO: Put in the URL -> ai.maaax.pro 
+        let current_loc = window.location.href;
         // create a new websocket connection
         let ws_connection = new WebSocket(`ws://127.0.0.1:8080/ws/${rw_id}`)
         
@@ -174,7 +176,6 @@ const App = ()=> {
         },
     });
 
-    // TODO: in the instruction, add check results on ZeroGPT option
     return (
         <>
             <ThemeProvider theme={theme}>
@@ -207,7 +208,7 @@ const App = ()=> {
                             <Typography sx={{marginBottom: "10px", marginTop: "5px"}} variant="h3">📌 Tips on how to use the tool </Typography>
                             <Typography variant="ins">👉 Only rewrite ONE paragraph at a time. </Typography>
                             <Typography variant="ins">👉 For performance, do NOT include the title of the paragraph, just enter the text content. </Typography>
-                            <Typography variant="ins">👉 The tool thoroughly reviews and rewrites your text to eliminate any AI-generated content. Please be patient. </Typography>
+                            <Typography variant="ins">👉 To confirm that the generated text is indeed human text, you can use Turnitin or <a href="https://www.zerogpt.com/" target="_blank" sx={{cursor: "pointer"}}> ZeroGPT </a> </Typography>
                         </div>
                         <TextField 
                             variant="outlined"
@@ -218,12 +219,12 @@ const App = ()=> {
                             onChange={handleOnTextChange}
                             error={text_error}
                             helperText={text_error_msg} 
-                            placeholder="Input your text. Minimum: 200 words. Maximum: 300 words."
+                            placeholder="Input your text. Minimum: 50 words. Maximum: 300 words."
                             label="Paste in your GPT paragraph"
                             sx={{width: "90%", margin: "15px auto"}}
                         /> 
                         <div className="btn-holder">
-                            <Typography sx={{marginRight: "10px"}}> {`${text_count} : 200-300`} </Typography>
+                            <Typography sx={{marginRight: "10px"}}> {`${text_count} : 50-300`} </Typography>
                             <Button
                                 onClick={handleRewriteText}
                                 startIcon={<ModelTrainingIcon/>}

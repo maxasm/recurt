@@ -1,0 +1,12 @@
+[Unit]
+Description=Recursive rewriting using feedback
+After=network.target
+
+[Service]
+WorkingDirectory=~/recurt
+ExecStart=~/recurt/recurt
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

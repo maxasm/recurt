@@ -132,7 +132,7 @@ func update_db(rp RewriteResponse, id primitive.ObjectID) error {
 
 // handle incomming web socket connection 
 func handleWebSocketRequest(c echo.Context) error {
-    fmt.Printf("Received websocket connection request ...\n")
+    // fmt.Printf("Received websocket connection request ...\n")
     // get the id of the request
     req_id := c.Param("id")
 
@@ -161,13 +161,14 @@ func handleWebSocketRequest(c echo.Context) error {
         text := find_result.Text
         rp := run(text, ws)
     
-        err_update_db := update_db(rp, object_id) 
+        _ = update_db(rp, object_id) 
+        /**
         if err_update_db != nil {
             fmt.Printf("error updating database\n")
         } else {
             fmt.Printf("updated database successfully\n") 
         }
- 
+        **/
         // send the response in JSON
         websocket.JSON.Send(ws, WebSocketMessage{Done: true, Text: rp.Text, Human: rp.Human})
         

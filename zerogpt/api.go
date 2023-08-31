@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
-	"fmt"
 )
 
 const api_end_point = "https://api.zerogpt.com/api/detect/detectText"
@@ -75,13 +74,11 @@ func Check(text string) (*APIResponse,error) {
 	test_data := PayLoad{InputText: text}	
 	test_as_json, err_marshal := json.Marshal(test_data)
  	if err_marshal != nil {
-		fmt.Printf("Error #1\n")
 		return nil, err_marshal
 	}	
 
 	resp, err_upload := upload(test_as_json)
 	if err_upload != nil {
-		fmt.Printf("Error #2\n")
 		return nil, err_upload
 	}
 	
@@ -89,7 +86,6 @@ func Check(text string) (*APIResponse,error) {
 	
 	err_unmarshal := json.Unmarshal(resp, &api_resp)
 	if err_unmarshal != nil {
-		fmt.Printf("Error #3: %s\n", string(resp))
 		return nil, err_unmarshal	
 	}
 
