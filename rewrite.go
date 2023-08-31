@@ -118,7 +118,10 @@ func recursive_rewrite(content string, gpt_tokens *int64, ws *websocket.Conn) (s
 		// replace the initial sentence with the current sentence
 		content = strings.Replace(content, prose, rewrt, 1)
 
-		txt := fmt.Sprintf("Rewriting %d AI sentence(s)\n", num)
+		txt := fmt.Sprintf("Rewriting %d AI sentence", num)
+        if num > 1 {
+            txt += "s"
+        }
         // fmt.Printf("%s\n", txt)
         websocket.JSON.Send(ws, WebSocketMessage{Done: false, Text: txt})    
     	
@@ -219,6 +222,7 @@ func run(content string, ws *websocket.Conn) RewriteResponse {
     // counter for the number of gpt tokens used
 	var gpt_tokens int64 = 0
     
+    /**
     // parse sentence and char tokens
 	tokens := parser.Parse([]rune(content))	
 
@@ -230,9 +234,10 @@ func run(content string, ws *websocket.Conn) RewriteResponse {
 	if err_resp != nil {
 		panic(err_resp)	
 	}
-
+    
+    **/
     // fmt.Printf("\n ---- recursive rewrite ----\n")
-	resp_content, human_p := recursive_rewrite(resp, &gpt_tokens, ws)
+	resp_content, human_p := recursive_rewrite(content, &gpt_tokens, ws)
     
 	token_cost := token.Cost(gpt_tokens)
 	fmt.Printf("\n ---- done rewriting. used %d tokens costing ($%.3f) ----\n", gpt_tokens, token_cost)

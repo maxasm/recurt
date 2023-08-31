@@ -38,7 +38,7 @@ const App = ()=> {
     const [tx_modal_open, update_tx_modal_open] = useState(false)
     
     // the header text of the text modal
-    const [tx_modal_header_text, update_tx_modal_header_text] = useState("")
+    const [tx_modal_header_text, update_tx_modal_header_text] = useState("Scanning for AI text")
     
     // text value in the 'text-area'
     const [text, updateText] = useState("")
@@ -88,12 +88,17 @@ const App = ()=> {
     }
  
     // function called to rewrite the text
-    function handleRewriteText() {
+    function handleRewriteText(again) {
         // start by validating the text 
         let valid = validateText() 
         if (valid) {
             let ok = sendRewriteRequest()
             update_tx_modal_open(ok)
+    
+            if (again) {
+                updateDone(false)
+                update_tx_modal_header_text("Scanning for AI text")
+            }
         }
     }
 

@@ -44,7 +44,7 @@ const TextDialog = ({open, update_modal_open, base_text, done, header_text, rewr
     function handleRewriteAgain() {
         update__sb_message("Rewriting text again ... ")
         update__sb_open(true)
-        rewriteFn() 
+        rewriteFn(true) 
     }
     
     // TODO: remove <Typography/> inside <DialogTitle/>

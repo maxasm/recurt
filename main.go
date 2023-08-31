@@ -199,6 +199,7 @@ func start_server() {
 // TODO: Limit the number of input words to 300
 // TODO: Enhance the prompt to be more effective
 
+// TODO: Cancel websocket reqeust when the user cancle's the rewrite 
 // the main function
 func main() {
 	// load environment varibles and access tokens
