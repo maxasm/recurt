@@ -46,7 +46,7 @@ const TextDialog = ({open, update_modal_open, base_text, done, header_text, rewr
         update__sb_open(true)
         rewriteFn(true) 
     }
-    
+
     // TODO: remove <Typography/> inside <DialogTitle/>
     return (
         <Dialog

@@ -208,6 +208,7 @@ type RewriteResponse struct {
     Human float64 `json:"human"`
 }
 
+
 // run takes a string and returns a response containing the ID of the text being processed.
 func run(content string, ws *websocket.Conn) RewriteResponse {
 

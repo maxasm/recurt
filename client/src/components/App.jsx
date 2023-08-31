@@ -76,7 +76,7 @@ const App = ()=> {
     
         if ((wordsCount(text) < MIN_WORDS) || (wordsCount(text) > MAX_WORDS)) {
             update_text_error(true) 
-            update_text_error_msg("Words count not in the given range.")
+            update_text_error_msg("Word count not in the given range.")
             return false
         }
     
@@ -119,7 +119,7 @@ const App = ()=> {
         let rw_id = resp_json.text
         
         // TODO: Put in the URL -> ai.maaax.pro 
-        let current_loc = window.location.href;
+        // TODO: Close the connection once the TextModal is closed
         // create a new websocket connection
         let ws_connection = new WebSocket(`ws://127.0.0.1:8080/ws/${rw_id}`)
         
