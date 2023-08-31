@@ -118,7 +118,7 @@ func recursive_rewrite(content string, gpt_tokens *int64, ws *websocket.Conn) (s
 		// replace the initial sentence with the current sentence
 		content = strings.Replace(content, prose, rewrt, 1)
 
-		txt := fmt.Sprintf("Rewriting %d AI sentences\n", num)
+		txt := fmt.Sprintf("Rewriting %d AI sentence(s)\n", num)
         // fmt.Printf("%s\n", txt)
         websocket.JSON.Send(ws, WebSocketMessage{Done: false, Text: txt})    
     	

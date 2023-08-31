@@ -22,6 +22,7 @@ import (
 
 // database connection
 var database_client *mongo.Client
+// TODO: update database URI to maaax.pro
 const DATABASE_URL = "mongodb://127.0.0.1:27017/?connect=direct" 
 
 type APIResponse struct {

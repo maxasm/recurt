@@ -201,7 +201,7 @@ const App = ()=> {
                         sx={{fontFamily: "Barlow", fontWeight: "500"}}> Hire me as a dev </Button>
                 </div>
                 <div className="container">
-                    <Typography sx={{marginTop: "40px"}} variant="h1"> Bypass Turnitin AI and Plagiarism detection in minutes </Typography> 
+                    <Typography sx={{marginTop: "40px"}} variant="h1"> Bypass Turnitin AI and Plagiarism detection in Seconds </Typography> 
                     <Typography variant="h2"> The best tool for Kenyan academic writers </Typography>
                     <Paper sx={{width: "90%", minHeight:"300px", margin: "0px auto", marginTop: "35px", paddingBottom: "10px", background: "rgba(255,255,255,0.5)", filter: "50px", display: "flex", flexDirection: "column", alignItems: "stretch", justifyContent:"center"}}>
                         <div className="instructions">
