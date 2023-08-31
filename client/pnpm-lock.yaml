@@ -17,6 +17,9 @@ dependencies:
   '@mui/material':
     specifier: ^5.14.6
     version: 5.14.6(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.15)(react-dom@18.2.0)(react@18.2.0)
+  clipboard-copy:
+    specifier: ^4.0.1
+    version: 4.0.1
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -1136,6 +1139,10 @@ packages:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
     dev: true
+
+  /clipboard-copy@4.0.1:
+    resolution: {integrity: sha512-wOlqdqziE/NNTUJsfSgXmBMIrYmfd5V0HCGsR8uAKHcg+h9NENWINcfRjtWGU77wDHC8B8ijV4hMTGYbrKovng==}
+    dev: false
 
   /clsx@2.0.0:
     resolution: {integrity: sha512-rQ1+kcj+ttHG0MKVGBUXwayCCF1oh39BF5COIpRzuCEv8Mwjv0XucrI2ExNTOn9IlLifGClWQcU9BrZORvtw6Q==}

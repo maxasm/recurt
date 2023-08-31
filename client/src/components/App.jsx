@@ -184,7 +184,9 @@ const App = ()=> {
                     update_modal_open={update_tx_modal_open}
                     base_text={modal_text}
                     header_text={tx_modal_header_text}
-                    done={done}/>
+                    done={done}
+                    rewriteFn={handleRewriteText} 
+                />
 
                 <HireMeDialog open={hm_modal_open} update_modal_open={update_hm_modal_open}/>
 
