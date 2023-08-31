@@ -3,8 +3,8 @@ Description=Recursive rewriting using feedback
 After=network.target
 
 [Service]
-WorkingDirectory=~/recurt
-ExecStart=~/recurt/recurt
+WorkingDirectory=/home/max/recurt
+ExecStart=/home/max/recurt/recurt
 Restart=always
 
 [Install]
