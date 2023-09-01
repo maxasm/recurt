@@ -30,6 +30,9 @@ import {useState} from "react"
 /** count words **/
 import {wordsCount} from "words-count"
 
+/** WebSocket connection **/
+let ws_connection;
+
 const App = ()=> {
     // 'Hire Me' modal state
     const [hm_modal_open, update_hm_modal_open] = useState(false)
@@ -65,21 +68,29 @@ const App = ()=> {
 
     function validateText() {
         const MAX_WORDS = 300;
-        const MIN_WORDS = 50;
+        const MIN_WORDS = 30;
+        
+        const word_count = wordsCount(text) 
     
         // check if the text is empty
-        if (wordsCount(text) === 0) {
+        if (word_count === 0) {
             update_text_error(true)     
-            update_text_error_msg("Text can't be empty")
+            update_text_error_msg("Please provide text; this field cannot be left empty")
             return false
         }
     
-        if ((wordsCount(text) < MIN_WORDS) || (wordsCount(text) > MAX_WORDS)) {
+        if  (word_count > MAX_WORDS) {
             update_text_error(true) 
-            update_text_error_msg("Word count not in the given range.")
+            update_text_error_msg("Please limit your input to under 300 words")
             return false
         }
-    
+        
+        if  (word_count < MIN_WORDS) {
+            update_text_error(true) 
+            update_text_error_msg("Please enter a minimum of 30 words")
+            return false
+        }
+        
         update_text_error(false)
         update_text_error_msg("")
         
@@ -102,6 +113,14 @@ const App = ()=> {
         }
     }
 
+    // helper function for closing the WebSocket connection
+    function closeWebSocketConnection() {
+        if (ws_connection.readyState === "OPEN") {
+            ws_connection.close() 
+        }        
+    } 
+    
+
     async function sendRewriteRequest() {
         const resp = await fetch("/rewrite", {
             method: "POST",
@@ -119,16 +138,14 @@ const App = ()=> {
         let rw_id = resp_json.text
         
         // TODO: Put in the URL -> ai.maaax.pro 
-        // TODO: Close the connection once the TextModal is closed
         // create a new websocket connection
-        let ws_connection = new WebSocket(`ws://127.0.0.1:8080/ws/${rw_id}`)
+        ws_connection = new WebSocket(`ws://127.0.0.1:8080/ws/${rw_id}`)
         
         ws_connection.onopen = function() {
             console.log("websocket connected")     
         }
     
         ws_connection.onmessage = async function({data}) {
-            console.log(`ws message: ${data}`)     
             let data_json = JSON.parse(data)
             // update the done state
             updateDone(data_json.done)
@@ -192,6 +209,7 @@ const App = ()=> {
                     header_text={tx_modal_header_text}
                     done={done}
                     rewriteFn={handleRewriteText} 
+                    closeWebSocketConnection={closeWebSocketConnection}
                 />
 
                 <HireMeDialog open={hm_modal_open} update_modal_open={update_hm_modal_open}/>
@@ -206,7 +224,7 @@ const App = ()=> {
                         sx={{fontFamily: "Barlow", fontWeight: "500"}}> Hire me as a dev </Button>
                 </div>
                 <div className="container">
-                    <Typography sx={{marginTop: "40px"}} variant="h1"> Bypass Turnitin AI and Plagiarism detection in Seconds </Typography> 
+                    <Typography sx={{marginTop: "40px"}} variant="h1"> Bypass Turnitin AI Plagiarism detection in Seconds </Typography> 
                     <Typography variant="h2"> The best tool for Kenyan academic writers </Typography>
                     <Paper sx={{width: "90%", minHeight:"300px", margin: "0px auto", marginTop: "35px", paddingBottom: "10px", background: "rgba(255,255,255,0.5)", filter: "50px", display: "flex", flexDirection: "column", alignItems: "stretch", justifyContent:"center"}}>
                         <div className="instructions">
@@ -224,12 +242,12 @@ const App = ()=> {
                             onChange={handleOnTextChange}
                             error={text_error}
                             helperText={text_error_msg} 
-                            placeholder="Input your text. Minimum: 50 words. Maximum: 300 words."
+                            placeholder="Input your text. Minimum: 30 words. Maximum: 300 words."
                             label="Paste in your GPT paragraph"
                             sx={{width: "90%", margin: "15px auto"}}
                         /> 
                         <div className="btn-holder">
-                            <Typography sx={{marginRight: "10px"}}> {`${text_count} : 50-300`} </Typography>
+                            <Typography sx={{marginRight: "10px"}}> {`${text_count}/300`} </Typography>
                             <Button
                                 onClick={handleRewriteText}
                                 startIcon={<ModelTrainingIcon/>}

@@ -51,3 +51,11 @@
 h1 {
     font-family: 'logo';
 }
+
+.modal_text {
+    white-space: pre-wrap;
+    font-family: 'Barlow';
+    font-size: 1.1rem;
+    font-weight: 500;
+    line-height: 1.2;
+}

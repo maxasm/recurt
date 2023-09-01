@@ -9,6 +9,10 @@ import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import CircularProgress from '@mui/material/CircularProgress';
 import Snackbar from '@mui/material/Snackbar';
+import Box from "@mui/material/Box"
+
+/** color **/
+import {grey} from "@mui/material/colors"
 
 /** copy text **/
 import copy from "clipboard-copy"
@@ -17,7 +21,7 @@ import copy from "clipboard-copy"
 import {useState} from "react"
 
 // TODO: try and use a <pre/> tag to maintain spaces.
-const TextDialog = ({open, update_modal_open, base_text, done, header_text, rewriteFn})=> {
+const TextDialog = ({open, update_modal_open, base_text, done, header_text, rewriteFn, closeWebSocketConnection})=> {
 
     // 'snackbar' open state
     const [sb_open, update__sb_open] = useState(false)
@@ -31,6 +35,9 @@ const TextDialog = ({open, update_modal_open, base_text, done, header_text, rewr
     }
 
     function handleModalClose(){
+        // close the websocket connection
+        closeWebSocketConnection()
+        // hide the modal
         update_modal_open(false) 
     }
         
@@ -53,19 +60,22 @@ const TextDialog = ({open, update_modal_open, base_text, done, header_text, rewr
             open={open}
             onClose={handleModalClose}
             maxWidth={"xl"}
-            scroll={"paper"}>
+            scroll={"paper"}
+            PaperProps={{sx: {background: "rgba(255,255,255, 0.7)", color: grey[900], backdropFilter:"blur(3px)"}}}
+            slots={{backdrop: Box}}
+        >
             <DialogTitle sx={{display: "flex", alignItems: "center"}}> 
                 <Typography
-                    sx={{marginRight: "12px", fontSize: "1.2rem", fontFamily: "Barlow"}}> {!done ? header_text : "Human Rewritten Text"} </Typography>
+                    sx={{marginRight: "12px", fontWeight: 600, fontSize: "1.2rem", fontFamily: "Overpass", color: grey[900]}}> {!done ? header_text : "Human Rewritten Text"} </Typography>
                 <CircularProgress
                     sx={{display: !done ? "inline" : "none"}}
                     size="25px"/>
             </DialogTitle>
-            <DialogContent dividers>
+            <DialogContent dividers sx={{color: "#ffffff"}}>
                 <DialogContentText>
-                    <Typography>
+                    <pre style={{color: grey[900]}} className="modal_text">
                         {base_text}
-                    </Typography>
+                    </pre>
                 </DialogContentText>
             </DialogContent>
             <DialogActions>

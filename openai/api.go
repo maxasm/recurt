@@ -82,8 +82,8 @@ func read_file(fname string) (string, error) {
 
 func Rewrite(sentence string, gpt_tokens *int64) (string, error) {
 	// the prompt to use when rewriting the sentence.
-    // rewrite_prompt := `Rephrase the sentences using advanced graduate-level diction, scholarly expressions, and sophisticated sentence structure.`
-    rewrite_prompt := `Rephrase the sentences using advanced graduate-level diction. Change the sentence structure for each sentence.`
+    rewrite_prompt := `Rephrase the prose using advanced graduate-level diction and different sentence structure(s).`
+    // rewrite_prompt := `Rephrase the sentences using advanced graduate-level diction. Change the sentence structure for each sentence.`
 	// create user prompt
 	user_prompt := fmt.Sprintf("Sentence(s):\n%s", sentence)
 
