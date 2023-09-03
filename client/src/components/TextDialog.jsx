@@ -59,7 +59,7 @@ const TextDialog = ({open, update_modal_open, base_text, done, header_text, rewr
         <Dialog
             open={open}
             onClose={handleModalClose}
-            maxWidth={"xl"}
+            maxWidth={"lg"}
             scroll={"paper"}
             PaperProps={{sx: {background: "rgba(255,255,255, 0.7)", color: grey[900], backdropFilter:"blur(3px)"}}}
             slots={{backdrop: Box}}

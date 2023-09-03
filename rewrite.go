@@ -178,14 +178,14 @@ func rewrite_paragraphs(paragraphs []parser.Paragraph, iter int, gpt_tokens *int
 	
 	var out bytes.Buffer = bytes.Buffer{}
 	
-	for a, pr := range paragraphs {
+	for _, pr := range paragraphs {
 		
 		if !pr.Editable {
 			out.WriteString(pr.Text)	
 			continue
 		} 
 		
-		txt := fmt.Sprintf("Rewriting block %d of %d\n", a+1, len(paragraphs))	
+		txt := fmt.Sprintf("Rewriting paragraph")	
         // fmt.Printf("%s\n", txt)
         websocket.JSON.Send(ws, WebSocketMessage{Done: false, Text:txt})
         
@@ -223,7 +223,6 @@ func run(content string, ws *websocket.Conn) RewriteResponse {
     // counter for the number of gpt tokens used
 	var gpt_tokens int64 = 0
     
-    /**
     // parse sentence and char tokens
 	tokens := parser.Parse([]rune(content))	
 
@@ -236,12 +235,11 @@ func run(content string, ws *websocket.Conn) RewriteResponse {
 		panic(err_resp)	
 	}
     
-    **/
     // fmt.Printf("\n ---- recursive rewrite ----\n")
-	resp_content, human_p := recursive_rewrite(content, &gpt_tokens, ws)
+	resp_content, human_p := recursive_rewrite(resp, &gpt_tokens, ws)
     
 	token_cost := token.Cost(gpt_tokens)
-	fmt.Printf("\n ---- done rewriting. used %d tokens costing ($%.3f) ----\n", gpt_tokens, token_cost)
+	fmt.Printf("Done rewriting. used %d tokens costing ($%.3f)\n", gpt_tokens, token_cost)
     
     // create the response object
     rp := RewriteResponse {

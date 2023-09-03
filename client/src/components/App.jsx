@@ -139,7 +139,7 @@ const App = ()=> {
         
         // TODO: Put in the URL -> ai.maaax.pro 
         // create a new websocket connection
-        ws_connection = new WebSocket(`ws://127.0.0.1:8080/ws/${rw_id}`)
+        ws_connection = new WebSocket(`ws://${window.location.host}/ws/${rw_id}`)
         
         ws_connection.onopen = function() {
             console.log("websocket connected")     
@@ -226,7 +226,7 @@ const App = ()=> {
                 <div className="container">
                     <Typography sx={{marginTop: "40px"}} variant="h1"> Bypass Turnitin AI Plagiarism detection in Seconds </Typography> 
                     <Typography variant="h2"> The best tool for Kenyan academic writers </Typography>
-                    <Paper sx={{width: "90%", minHeight:"300px", margin: "0px auto", marginTop: "35px", paddingBottom: "10px", background: "rgba(255,255,255,0.5)", filter: "50px", display: "flex", flexDirection: "column", alignItems: "stretch", justifyContent:"center"}}>
+                    <Paper sx={{width: "90%", minHeight:"300px", margin: "0px auto", marginTop: "35px", paddingTop:"10px", paddingBottom: "10px", background: "rgba(255,255,255,0.5)", filter: "50px", display: "flex", flexDirection: "column", alignItems: "stretch", justifyContent:"center"}}>
                         <div className="instructions">
                             <Typography sx={{marginBottom: "10px", marginTop: "5px"}} variant="h3">📌 Tips on how to use the tool </Typography>
                             <Typography variant="ins">👉 Only rewrite ONE paragraph at a time. </Typography>
