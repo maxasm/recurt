@@ -80,7 +80,7 @@ const HireMeDialog = ({open, update_modal_open})=> {
     
             <DialogActions>
                 <Typography>
-                    👉 maxdev@maaax.pro (email me)
+                    👉 awsmaaax@gmail.com (email me)
                 </Typography> 
             </DialogActions>
         </Dialog>

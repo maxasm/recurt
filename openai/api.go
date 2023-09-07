@@ -82,7 +82,8 @@ func read_file(fname string) (string, error) {
 
 // TODO: Add an option for rewriting paragraphs and rewriting single sentences
 func Rewrite(sentence string, gpt_tokens *int64) (string, error) {
-    rewrite_prompt := `Rephrase the prose using advanced graduate-level diction. Use different sentence structure(s). Break long sentences into shorter ones and join other shorter sentences to make new long sentences.`
+    rewrite_prompt := `Rephrase the prose using advanced graduate-level diction. Make the prose more interesting by using academic synonyms and wording. Additionally, experiment with different sentence structures.` 
+    // rewrite_prompt := `Rephrase the prose using advanced graduate-level diction. Use different sentence structure(s). Break long sentences into shorter ones and join other shorter sentences to make new long sentences.`
     // rewrite_prompt := `Rephrase the prose using advanced graduate-level diction and different sentence structure(s).`
     // rewrite_prompt := `Rephrase the sentences using advanced graduate-level diction. Change the sentence structure for each sentence.`
 

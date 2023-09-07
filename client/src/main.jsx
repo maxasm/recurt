@@ -6,5 +6,3 @@ import App from "./components/App.jsx"
 
 const root = document.getElementById("root")
 reactDOM.createRoot(root).render(<App/>)
-
-// this is a comment from helix
